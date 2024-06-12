@@ -1,0 +1,38 @@
+%% Low pass Gaussian filter %%
+clear all:
+clc;
+a = imread('cameraman.tif');
+a= double(a);
+c = size(a);
+N = c(1);
+DO= input ('Enter the cut-off frequency / standard deviation');
+for u= 1:1:c(1)
+for v = 1:1:c(2)
+Dx = ((u-(N/2))^2+(v-(N/2))^2)^0.5;
+D= Dx*Dx;
+
+%In the formula we need to take the square
+H(u,v) = exp(-D/(2*DO*DO));
+end
+end
+vv=fft2(a);
+vc=fftshift(vv);
+x= vc.*H;
+x=abs (ifft2(x));
+
+% Display output
+subplot(221)
+imshow(uint8(a))
+title('Original Image')
+
+subplot(222)
+imagesc(H), colormap(gray)
+title('2-D GLPF')
+
+subplot(223)
+mesh(H)
+title('GLPF Freq Resp')
+
+subplot(224)
+imshow(uint8(x))
+title('GLP Filtered Image')
