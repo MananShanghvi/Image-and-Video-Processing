@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def dct(matrix):
+    return np.fft.fft2(matrix)
+
+def idct(matrix):
+    return np.fft.ifft2(matrix).real
+
+def mpeg_compression(input_matrix):
+    compressed_matrix = dct(input_matrix)
+    return idct(compressed_matrix)
+
+def main():
+    # Input from user
+    print("Enter the elements of the 5x5 matrix row by row:")
+    input_matrix = []
+    for _ in range(5):
+        row = list(map(float, input().split()))
+        input_matrix.append(row)
+    input_matrix = np.array(input_matrix)
+
+    # Display input image
+    plt.subplot(1, 2, 1)
+    plt.title('Input Image')
+    plt.imshow(input_matrix, cmap='gray')
+    plt.axis('off')
+
+    # Compression
+    output_matrix = mpeg_compression(input_matrix)
+
+    # Display output image
+    plt.subplot(1, 2, 2)
+    plt.title('Output Image')
+    plt.imshow(output_matrix, cmap='gray')
+    plt.axis('off')
+
+    plt.show()
+
+if __name__ == "__main__":
+    main()
