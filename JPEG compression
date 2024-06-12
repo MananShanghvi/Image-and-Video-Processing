@@ -1,0 +1,89 @@
+import os
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
+
+def prompt_user_input():
+    while True:
+        try:
+            binary_or_color = int(input("Enter 1 for a 4x4 binary image or 2 for a color image (4x4 matrix): "))
+            if binary_or_color not in [1, 2]:
+                raise ValueError("Invalid input. Please enter either 1 or 2.")
+            break
+        except ValueError as ve:
+            print(ve)
+    return binary_or_color
+
+def get_image(binary_or_color):
+    if binary_or_color == 1:
+        binary_image = []
+        print("Enter each row of the binary image (0s and 1s) separated by spaces:")
+        for i in range(4):
+            row = input(f"Row {i + 1}: ").strip().split()
+            if len(row) != 4:
+                raise ValueError("Each row must contain 4 elements.")
+            binary_image.append([int(pixel) for pixel in row])
+        return np.array(binary_image)
+    else:
+        color_image = []
+        print("Enter each row of the color image (RGB values separated by spaces):")
+        for i in range(4):
+            row = input(f"Row {i + 1}: ").strip().split()
+            if len(row) != 12:
+                raise ValueError("Each row must contain 12 elements (RGB values for 4 pixels).")
+            color_image.append([int(pixel) for pixel in row])
+        return np.array(color_image).reshape(4, 4, 3)
+
+def compress_image(input_image, output_image_path, binary_or_color):
+    original_file_size = 0
+    if binary_or_color == 1:
+        # Convert binary image to 8-bit grayscale
+        binary_image = input_image * 255
+        binary_image = binary_image.astype(np.uint8)
+        img = Image.fromarray(binary_image, mode='L')
+    else:
+        # Convert color image to RGB mode
+        img = Image.fromarray(input_image.astype(np.uint8), mode='RGB')
+    
+    # Save the input image in PNG format
+    input_image_path = f"{output_image_path}_input.jpg"
+    img.save(input_image_path)
+    
+    # Save the image in JPEG format with different compression qualities
+    for quality in [50]:
+        output_path = f"{output_image_path}_quality_{quality}.jpg"
+        input_path = f"{output_image_path}_input.jpg"
+        img.save(output_path, quality=quality)
+        
+        # Get compressed file size
+        compressed_file_size = os.path.getsize(output_path)
+        # Input file size
+        input_file_size = os.path.getsize(input_path)
+        # Display file size information
+        print(f"Input File Size: {input_file_size} bytes")
+        print(f"Quality {quality} - Compressed File Size: {compressed_file_size} bytes")
+        
+        # Display the input and output images using Matplotlib
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+        axes[0].imshow(input_image, cmap='gray' if binary_or_color == 1 else None)
+        axes[0].set_title("Input Image")
+        axes[0].axis('off')
+        output_img = np.array(Image.open(output_path))
+        axes[1].imshow(output_img, cmap='gray' if binary_or_color == 1 else None)
+        axes[1].set_title(f"Output Image (Quality {quality})")
+        axes[1].axis('off')
+        plt.show()
+        
+        # Close the image
+        img.close()
+
+if __name__ == "__main__":
+    binary_or_color = prompt_user_input()
+    if binary_or_color == 1:
+        input_image = get_image(binary_or_color)
+    else:
+        input_image = get_image(binary_or_color)
+    output_image_path = input("Enter the path where you want to save the compressed images (without extension): ")
+    # Compress the image
+    compress_image(input_image, output_image_path, binary_or_color)
+    print("Compression applied successfully!")
