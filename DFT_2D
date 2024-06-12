@@ -1,0 +1,36 @@
+function visualizeDFT()
+    % Prompt user for a 4x4 binary image matrix
+    disp('Please enter a 4x4 binary image matrix (0s and 1s only):');
+    while true
+        try
+            image = input('Enter the matrix: ');
+            % Check if the input is a 4x4 matrix
+            if ~isequal(size(image), [4 4])
+                error('Input must be a 4x4 matrix.');
+            end
+            % Check if the input contains only 0s and 1s
+            if any(image(:) ~= 0 & image(:) ~= 1)
+                error('Input must contain only 0s and 1s.');
+            end
+            break; % Break the loop if input is valid
+        catch
+            disp('Invalid input. Please try again.');
+        end
+    end
+    % Compute 2D Discrete Fourier Transform (DFT)
+    dft_result = fft2(image);
+    % Display 2D DFT result
+    disp('2D Discrete Fourier Transform (DFT) of the input matrix:');
+    disp(dft_result);
+    % Plot the magnitude of the DFT result
+    figure;
+    subplot(1,2,1);
+    imshow(image, []);
+    title('Original Image');
+    subplot(1,2,2);
+    magnitude_spectrum = abs(dft_result);
+    imshow(log(1 + magnitude_spectrum), []);
+    title('Frequency Spectrum (Logarithmic Scale)');
+    colormap(gca, parula);
+    colorbar;
+end
